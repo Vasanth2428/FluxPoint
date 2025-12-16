@@ -48,8 +48,10 @@ const TrajectoryMap = ({ data, showNoise }) => {
             strokeWidth={3} 
             dot={false} 
             name="Reconstruction"
-            animationDuration={2000} // This makes it draw slowly like it's thinking
-          />
+            isAnimationActive={false}
+            // ADD THIS FOR THE NEON GLOW EFFECT:
+            style={{ filter: 'drop-shadow(0px 0px 8px rgba(59, 130, 246, 0.8))' }} 
+            />
         </ComposedChart>
       </ResponsiveContainer>
     </div>

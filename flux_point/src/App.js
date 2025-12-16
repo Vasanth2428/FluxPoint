@@ -2,11 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import TrajectoryMap from './TrajectoryMap';
 import rawData from './fluxpoint_data.json'; 
-import { Activity, ShieldCheck, Zap, MapPin, Play, RotateCcw, Radio, ChevronDown, Cpu, Terminal } from 'lucide-react';
+import { Activity, ShieldCheck, Zap, MapPin, Play, RotateCcw, Radio, ChevronDown, Cpu, Terminal, Download } from 'lucide-react';
 
 function App() {
   // 1. DATA SAFETY CHECK
-  // If the Python script wasn't run correctly, this prevents the app from crashing
   const fleetData = rawData.fleet || [ { name: "Error: Run Python Script", data: [] } ];
 
   // STATE
@@ -17,7 +16,6 @@ function App() {
   const [showNoise, setShowNoise] = useState(true);
   
   const streamInterval = useRef(null);
-  const logsContainerRef = useRef(null);
 
   // SWITCH ROBOT
   const handleRobotChange = (e) => {
@@ -32,7 +30,29 @@ function App() {
     setLogs(prev => [`[${timestamp}] ${msg}`, ...prev].slice(0, 6)); // Keep last 6 logs
   };
 
-  // START SIMULATION (The "Fake" Real-Time)
+  // DOWNLOAD REPORT FUNCTION
+  const downloadReport = () => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `FLX_Mission_Report_${timestamp}.txt`;
+    
+    let content = `FLUXPOINT MISSION REPORT\n`;
+    content += `========================\n`;
+    content += `Unit: ${fleetData[selectedRobotId].name}\n`;
+    content += `Date: ${new Date().toLocaleString()}\n`;
+    content += `Status: ${isLive ? 'IN PROGRESS' : 'COMPLETED'}\n\n`;
+    content += `TELEMETRY LOGS:\n`;
+    logs.forEach(log => content += `${log}\n`);
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+  };
+
+  // START SIMULATION
   const startSimulation = () => {
     if (isLive) return;
     
@@ -54,17 +74,24 @@ function App() {
           return;
         }
 
-        // 1. Update Graph
         const point = currentRobotData[currentIndex];
+        const drift = Math.abs(point.truth_x - point.pred_x);
+
+        // Drift Alert Logic
+        if (drift > 2.0 && currentIndex % 20 === 0) {
+           addLog(`[WARNING] High Drift Detected: ${drift.toFixed(2)}m`);
+        }
+
+        // Update Graph
         setDisplayedData(prev => [...prev, point]);
 
-        // 2. Simulate Network Traffic (Every 10 frames)
+        // Simulate Network Log
         if (currentIndex % 10 === 0) {
            addLog(`Packet #${currentIndex} received | Signal: -42dBm`);
         }
 
         currentIndex++;
-      }, 40); // 40ms = 25 FPS update rate
+      }, 40); 
     }, 800);
   };
 
@@ -129,6 +156,10 @@ function App() {
             <RotateCcw size={16} style={{marginRight:5}}/> Reset Mission
         </button>
 
+        <button className="toggle-btn" onClick={downloadReport} style={{ marginTop: '10px', background: '#3b82f6' }}>
+            <Download size={16} style={{marginRight:5}}/> Download Report
+        </button>
+
         <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px' }}>
           <div className="stat-label">Cloud Latency</div>
           <div style={{ color: '#10b981', fontSize: '0.9rem' }}>~24ms (Stable)</div>
@@ -136,8 +167,7 @@ function App() {
       </div>
 
       {/* --- CENTER MAP --- */}
-      <div className="glass-panel" style={{ padding: '0.5rem', position: 'relative' }}>
-        {/* Live Overlay */}
+      <div className="glass-panel map-container" style={{ padding: '0.5rem', position: 'relative' }}>
         <div style={{position:'absolute', top: 20, right: 20, zIndex: 10, textAlign:'right'}}>
            {isLive && <div className="blink-anim" style={{color: '#ef4444', fontWeight:'bold', fontSize:'0.8rem', marginBottom:5}}>● LIVE FEED</div>}
            <div style={{background: 'rgba(0,0,0,0.6)', padding: '5px 10px', borderRadius: '4px', fontSize: '0.8rem', color: '#94a3b8'}}>
@@ -162,7 +192,7 @@ function App() {
           <div className="stat-value" style={{ color: '#10b981' }}>99.1%</div>
         </div>
 
-        {/* NETWORK LOG (New!) */}
+        {/* NETWORK LOG */}
         <div style={{ marginTop: 'auto', background: 'rgba(0,0,0,0.3)', padding: '10px', borderRadius: '8px', border: '1px solid #334155' }}>
            <div style={{display:'flex', alignItems:'center', gap:5, marginBottom:5, color:'#64748b', fontSize:'0.75rem', fontWeight:'bold'}}>
              <Terminal size={12}/> SYSTEM LOG
