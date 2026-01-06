@@ -1,0 +1,219 @@
+/* src/LandingPage.css */
+
+.landing-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-void);
+  /* Match App bg */
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  color: white;
+}
+
+/* --- 3D BACKGROUND --- */
+.landing-3d-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  /* The user can still interact (spin) the 3D background! */
+}
+
+.bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, transparent 20%, #0f0518 90%);
+  z-index: 2;
+  pointer-events: none;
+  /* Let clicks pass through to 3D */
+}
+
+/* --- CONTENT LAYOUT --- */
+.landing-content {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem 4rem;
+  box-sizing: border-box;
+  pointer-events: none;
+  /* Allow clicks to pass to 3D background unless on buttons */
+}
+
+/* Allow interaction with header and buttons */
+.landing-header,
+.cta-button {
+  pointer-events: auto;
+}
+
+.landing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pill-badge {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* --- HERO TYPOGRAPHY --- */
+.hero-section {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 800px;
+}
+
+.hero-title {
+  font-family: 'JetBrains Mono', sans-serif;
+  font-size: 7rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: white;
+  text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: #94a3b8;
+  max-width: 600px;
+  line-height: 1.6;
+  margin-top: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* --- CTA BUTTON --- */
+.cta-button {
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.7);
+  background: #60a5fa;
+}
+
+/* --- FOOTER --- */
+.features-footer {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.feature-icon {
+  color: var(--signal-orange);
+}
+
+.divider {
+  height: 20px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- ANIMATIONS --- */
+/* Initial state: hidden and shifted */
+.animate-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease-out;
+}
+
+.animate-down {
+  opacity: 0;
+  transform: translateY(-40px);
+  transition: all 0.8s ease-out;
+}
+
+.fade-in-slow {
+  opacity: 0;
+  transition: opacity 2s ease-out;
+}
+
+/* Trigger state: visible and in place */
+.start-anim .animate-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.start-anim .animate-down {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.start-anim .fade-in-slow {
+  opacity: 1;
+}
+
+/* Delays for staggered effect */
+.delay-1 {
+  transition-delay: 0.2s;
+}
+
+.delay-2 {
+  transition-delay: 0.4s;
+}
+
+.delay-3 {
+  transition-delay: 0.6s;
+}
+
+.delay-4 {
+  transition-delay: 0.8s;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
